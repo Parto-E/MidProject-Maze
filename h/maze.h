@@ -36,12 +36,13 @@ class Maze{
 
 
 
-        Maze(int ROWS, int COLS);
+        Maze(int ROWS, int COLS, int solvation);
         void start();
 
     private:
         int ROWS;
         int COLS;
+        int solvation;
         enum DIR { NORTH, SOUTH, EAST, WEST };
 };
 
