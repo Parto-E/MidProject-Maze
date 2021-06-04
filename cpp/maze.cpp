@@ -178,6 +178,8 @@ void Maze::start()
 
     usleep(5000000);
 
+    //DFS Algorithm
+
     if(solvation == 1){
         cout << "\033[1;32mNow you'll see the DFS algorithm for solving this maze\033[0m\n";
         cout << "\033[1;32mBut first remember:\033[0m\n";
@@ -196,9 +198,6 @@ void Maze::start()
 
         vector<Cell> trail1;
 
-        
-        int size = trail1.size();
-
         vector<DIR> live1;
 
         trail1.push_back(maze[curX1][curY1]);
@@ -207,7 +206,6 @@ void Maze::start()
        
         while(maze[x_target][y_target].visited() == false) {
             live1.clear();
-            //cout << "hi ..." <<std::endl;
             if(curY1)
                 if((maze[curX1][curY1-1].getWalls() & Maze::Cell::WALL_EAST) == 0 && maze[curX1][curY1-1].visited() == false)
                     live1.push_back(WEST);
@@ -246,6 +244,127 @@ void Maze::start()
                 for (size_t i = 0; i < live1.size(); i++)
                 {
                     if (live1[i])
+                    {
+                        switch(live1[i]) {
+                            case 0: //NORTH
+                                maze[--curX1][curY1].setVisited(true);
+                                visited++;
+                                break;
+                            case 1: //SOUTH
+                                maze[++curX1][curY1].setVisited(true);
+                                visited++;
+                                break;
+                            case 2: //EAST
+                                maze[curX1][++curY1].setVisited(true);
+                                visited++;
+                                break;
+                            case 3: //WEST
+                                maze[curX1][--curY1].setVisited(true);
+                                visited++;
+                                break;
+                        }
+                    trail1.push_back(maze[curX1][curY1]);
+                    }
+                    
+                }
+                
+            }
+            else if(live1.empty() == true){
+                if(visited < ROWS*COLS){
+                    trail1.pop_back();
+                    if(trail1.empty()==false) {
+                    int n = trail1.size();
+                    curX1=trail1[n-1].getRow();
+                    curY1=trail1[n-1].getColumn();
+                    }
+                }
+                else if(visited == ROWS*COLS){
+                    trail1.pop_back();
+                    if(trail1.empty()==false) {
+                    int n = trail1.size();
+                    curX1=trail1[n-1].getRow();
+                    curY1=trail1[n-1].getColumn();
+                    }
+                    visited = 0;
+                }
+            }
+        } 
+        /*for (size_t i = 0; i < trail1.size(); i++)
+        {
+            cout << trail1[i].getColumn() << " " << trail1[i].getRow() << std::endl;
+            usleep(100000);
+        }*/
+        
+    }
+
+    //BFS Algorithm
+
+     if(solvation == 2){
+        cout << "\033[1;32mNow you'll see the DFS algorithm for solving this maze\033[0m\n";
+        cout << "\033[1;32mBut first remember:\033[0m\n";
+        usleep(3000000);
+        cout << "\033[1;36mFirst argument shows your horizontal movement\033[0m\n";
+        cout << "\033[1;36mSecond argument shows your vertical movement\033[0m\n\n";
+        usleep(3000000);
+        for(int row = 0; row < ROWS; row++)
+        for(int col = 0; col < COLS; col++) { 
+            maze[row][col].setVisited(false);
+            maze[row][col].setPosition(row, col);
+        }
+
+        int curX1 = 0;
+        int curY1 = 0;
+
+        vector<Cell> trail1;
+
+        vector<DIR> live1;
+
+        trail1.push_back(maze[curX1][curY1]);
+        
+        maze[curX1][curY1].setVisited(true);
+       
+        while(maze[x_target][y_target].visited() == false) {
+            live1.clear();
+            if(curY1)
+                if((maze[curX1][curY1-1].getWalls() & Maze::Cell::WALL_EAST) == 0 && maze[curX1][curY1-1].visited() == false)
+                    live1.push_back(WEST);
+            if(curY1<COLS-1)
+                if((maze[curX1][curY1+1].getWalls() & Maze::Cell::WALL_WEST) == 0 && maze[curX1][curY1+1].visited() == false)
+                    live1.push_back(EAST);
+            if(curX1)
+                if((maze[curX1-1][curY1].getWalls() & Maze::Cell::WALL_SOUTH) == 0 && maze[curX1-1][curY1].visited() == false)
+                    live1.push_back(NORTH);
+            if(curX1<ROWS-1)
+                if((maze[curX1+1][curY1].getWalls() & Maze::Cell::WALL_NORTH) == 0 && maze[curX1+1][curY1].visited() == false)
+                    live1.push_back(SOUTH);
+
+            if(live1.size() == 1) {
+                switch(live1[0]) {
+                    case 0: //NORTH
+                        maze[--curX1][curY1].setVisited(true);
+                        visited++;
+                        break;
+                    case 1: //SOUTH
+                        maze[++curX1][curY1].setVisited(true);
+                        visited++;
+                        break;
+                    case 2: //EAST
+                        maze[curX1][++curY1].setVisited(true);
+                        visited++;
+                        break;
+                    case 3: //WEST
+                        maze[curX1][--curY1].setVisited(true);
+                        visited++;
+                        break;
+                    }
+                trail1.push_back(maze[curX1][curY1]); 
+            }
+            else if(live1.size() > 1){
+                for (size_t i = 0; i < live1.size(); i++)
+                {
+
+                    if (live1[i])
+                    {
                         switch(live1[i]) {
                             case 0: //NORTH
                                 maze[--curX1][curY1].setVisited(true);
@@ -289,13 +408,13 @@ void Maze::start()
                     visited = 0;
                 }
             }
-            size = trail1.size();
         } 
         for (size_t i = 0; i < trail1.size(); i++)
         {
             cout << trail1[i].getColumn() << " " << trail1[i].getRow() << std::endl;
-            usleep(10000);
+            usleep(100000);
         }
         
     }
+
 }
