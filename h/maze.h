@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <vector>
+#include <stack>
 
 class Maze{
     public:
@@ -22,7 +23,7 @@ class Maze{
                 WALL_ALL = 0x000f, WALL_NONE = 0x0000 };
             Cell();
             Cell(const int r, const int c);
-            Cell(const int r, const int c, const int stat);
+            Cell(const int r, const int c, const int walls);
             bool visited() const;
             void setVisited(const bool v = true);
             int getRow() const;
@@ -38,11 +39,14 @@ class Maze{
 
         Maze(int ROWS, int COLS, int solvation);
         void start();
+        int x_target = 0;
+        int y_target = 0;
 
     private:
         int ROWS;
         int COLS;
         int solvation;
+        int visited = 0;
         enum DIR { NORTH, SOUTH, EAST, WEST };
 };
 

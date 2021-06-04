@@ -4,6 +4,8 @@
 using std::cin;
 using std::cout;
 using std::vector;
+using std::stack;
+#define underline "\033[4;37m"
 
 void Maze::Cell::init(const int r, const int c, const int walls, const bool v) {
     setPosition(r, c);
@@ -72,10 +74,11 @@ void Maze::start()
 
     // Grab the Cell at the curX, curY position and push it on the trail stack.
     trail.push_back(maze[curX][curY]);
-
+    ++visited;
     // While the trail stack is not empty do the following:
     while(trail.empty()==false) { // stay in here till display
         // Empty the live vector.
+
         live.clear();
         // Check the neighbors of the current cell to the north, east, south, and west.
         // If any of the neighbors have all four walls, add the direction to that 
@@ -102,18 +105,22 @@ void Maze::start()
                 case 0: //NORTH
                     maze[curX][curY].removeWall(Cell::WALL_NORTH);
                     maze[--curX][curY].removeWall(Cell::WALL_SOUTH);
+                    visited++;
                     break;
                 case 1: //SOUTH
                     maze[curX][curY].removeWall(Cell::WALL_SOUTH);
                     maze[++curX][curY].removeWall(Cell::WALL_NORTH);
+                    visited++;
                     break;
                 case 2: //EAST
                     maze[curX][curY].removeWall(Cell::WALL_EAST);
                     maze[curX][++curY].removeWall(Cell::WALL_WEST);
+                    visited++;
                     break;
                 case 3: //WEST
                     maze[curX][curY].removeWall(Cell::WALL_WEST);
                     maze[curX][--curY].removeWall(Cell::WALL_EAST);
+                    visited++;
                     break;
             }
             // Push the new current cell onto the trail stack
@@ -121,6 +128,11 @@ void Maze::start()
         }     //If the live vector was emtpy:
         else {
         // Pop the top item from the trail stack
+        if(visited == ROWS*COLS){
+            x_target = curX;
+            y_target = curY;
+            visited = 0;
+        }
             trail.pop_back();
         // position of the top item in the trail stack.
             if(trail.empty()==false) {
@@ -132,20 +144,37 @@ void Maze::start()
         }
     }
 
+    cout << y_target << "  " << x_target << std::endl;
+
     // Do the following to display the maze:
     int r, c;
     for (c=0; c<COLS; c++) {
-        if (c == 0) cout << " _";
+        if (c == 0) cout << "\033[35m _";
         else cout << "__";
     }
     cout << '\n';
     for (r=0; r<ROWS; r++) {
         for (c=0; c<COLS; c++) {
-            cout << maze[r][c];
+            if(r == 0 && c == 0){
+                if ((maze[r][c].getWalls() & Maze::Cell::WALL_WEST) != 0) 
+                cout << '|';
+                else cout << ' ';
+                if ((maze[r][c].getWalls() & Maze::Cell::WALL_SOUTH) != 0) cout << underline << "\033[35m#\033[0m" << "\033[35m";
+                else cout << "#";
+            }
+            else if(r == x_target && c == y_target){
+                if ((maze[r][c].getWalls() & Maze::Cell::WALL_WEST) != 0) 
+                cout << '|';
+                else cout << ' ';
+                if ((maze[r][c].getWalls() & Maze::Cell::WALL_SOUTH) != 0) cout << underline << "\033[35m*\033[0m" << "\033[35m";
+                else cout << "*";
+            }
+            else
+                cout << maze[r][c];
         }
         cout << "|\n";
     }
-    cout << std::endl;
+    cout << "\033[0m\n";
 
     usleep(5000000);
 
@@ -167,18 +196,18 @@ void Maze::start()
 
         vector<Cell> trail1;
 
+        
+        int size = trail1.size();
+
         vector<DIR> live1;
 
         trail1.push_back(maze[curX1][curY1]);
-
-        cout<< curY1 << " " << curX1 << std::endl;
-        usleep(10000);
         
         maze[curX1][curY1].setVisited(true);
-
-        while(trail1.empty()==false) {
+       
+        while(maze[x_target][y_target].visited() == false) {
             live1.clear();
-
+            //cout << "hi ..." <<std::endl;
             if(curY1)
                 if((maze[curX1][curY1-1].getWalls() & Maze::Cell::WALL_EAST) == 0 && maze[curX1][curY1-1].visited() == false)
                     live1.push_back(WEST);
@@ -191,34 +220,82 @@ void Maze::start()
             if(curX1<ROWS-1)
                 if((maze[curX1+1][curY1].getWalls() & Maze::Cell::WALL_NORTH) == 0 && maze[curX1+1][curY1].visited() == false)
                     live1.push_back(SOUTH);
-            if(live1.empty()==false) {
-                switch(live1[rand() % live1.size()]) {
+
+            if(live1.size() == 1) {
+                switch(live1[0]) {
                     case 0: //NORTH
                         maze[--curX1][curY1].setVisited(true);
+                        visited++;
                         break;
                     case 1: //SOUTH
                         maze[++curX1][curY1].setVisited(true);
+                        visited++;
                         break;
                     case 2: //EAST
                         maze[curX1][++curY1].setVisited(true);
+                        visited++;
                         break;
                     case 3: //WEST
                         maze[curX1][--curY1].setVisited(true);
+                        visited++;
                         break;
                     }
-                cout<< curY1 << " " << curX1 << std::endl;
-                usleep(1000000);
                 trail1.push_back(maze[curX1][curY1]); 
             }
-            else {
-                trail1.pop_back();
-                if(trail1.empty()==false) {
-                int n = trail1.size();
-                curX1=trail1[n-1].getRow();
-                curY1=trail1[n-1].getColumn();
+            else if(live1.size() > 1){
+                for (size_t i = 0; i < live1.size(); i++)
+                {
+                    if (live1[i])
+                        switch(live1[i]) {
+                            case 0: //NORTH
+                                maze[--curX1][curY1].setVisited(true);
+                                visited++;
+                                break;
+                            case 1: //SOUTH
+                                maze[++curX1][curY1].setVisited(true);
+                                visited++;
+                                break;
+                            case 2: //EAST
+                                maze[curX1][++curY1].setVisited(true);
+                                visited++;
+                                break;
+                            case 3: //WEST
+                                maze[curX1][--curY1].setVisited(true);
+                                visited++;
+                                break;
+                    }
+                trail1.push_back(maze[curX1][curY1]);
+                    }
+                    
                 }
-
+                
             }
+            else if(live1.empty() == true){
+                if(visited < ROWS*COLS){
+                    trail1.pop_back();
+                    if(trail1.empty()==false) {
+                    int n = trail1.size();
+                    curX1=trail1[n-1].getRow();
+                    curY1=trail1[n-1].getColumn();
+                    }
+                }
+                else if(visited == ROWS*COLS){
+                    trail1.pop_back();
+                    if(trail1.empty()==false) {
+                    int n = trail1.size();
+                    curX1=trail1[n-1].getRow();
+                    curY1=trail1[n-1].getColumn();
+                    }
+                    visited = 0;
+                }
+            }
+            size = trail1.size();
         } 
+        for (size_t i = 0; i < trail1.size(); i++)
+        {
+            cout << trail1[i].getColumn() << " " << trail1[i].getRow() << std::endl;
+            usleep(10000);
+        }
+        
     }
 }
