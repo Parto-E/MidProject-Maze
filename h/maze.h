@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <vector>
-#include <stack>
+#include <queue>
 
 class Maze{
     public:
