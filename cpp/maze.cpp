@@ -281,7 +281,7 @@ void Maze::start()
     
     //BFS Algorithm
 
-     if(solvation == 2){
+    if(solvation == 2){
         cout << "\033[1;32mNow you'll see the BFS algorithm for solving this maze\033[0m\n";
         cout << "\033[1;32mBut first remember:\033[0m\n";
         usleep(3000000);
@@ -309,12 +309,11 @@ void Maze::start()
         
         maze[curX1][curY1].setVisited(true);
        
-        while(maze[x_target][y_target].visited() == false && queue.empty() == false) {
+        while(maze[x_target][y_target].visited() == false) {
+
             for(size_t j = 0; j < queue.size(); j++){
                 curX1 = queue.front().getRow();
                 curY1 = queue.front().getColumn();
-                cout << " first" << std::endl;
-                cout << queue.size() << std::endl;
                 live1.clear();
                 if(curY1)
                     if((maze[curX1][curY1-1].getWalls() & Maze::Cell::WALL_EAST) == 0 && maze[curX1][curY1-1].visited() == false)
@@ -328,100 +327,58 @@ void Maze::start()
                 if(curX1<ROWS-1)
                     if((maze[curX1+1][curY1].getWalls() & Maze::Cell::WALL_NORTH) == 0 && maze[curX1+1][curY1].visited() == false)
                         live1.push_back(SOUTH);
-
-            // if(live1.size() == 1) {
-            //     switch(live1[0]) {
-            //         case 0: //NORTH
-            //             maze[--curX1][curY1].setVisited(true);
-            //             visited++;
-            //             break;
-            //         case 1: //SOUTH
-            //             maze[++curX1][curY1].setVisited(true);
-            //             visited++;
-            //             break;
-            //         case 2: //EAST
-            //             maze[curX1][++curY1].setVisited(true);
-            //             visited++;
-            //             break;
-            //         case 3: //WEST
-            //             maze[curX1][--curY1].setVisited(true);
-            //             visited++;
-            //             break;
-            //         }
-            //     trail1.push_back(maze[curX1][curY1]); 
-            // }
-            cout << " before fors" << std::endl;
-            
-            for (size_t i = 0; i < live1.size(); i++)
-            {
-                if(live1.size() == 1){
-                    cout << " before switch for" << std::endl;
-                    switch(live1[i]) {
-                        case 0: //NORTH
-                            maze[--curX1][curY1].setVisited(true);
-                            break;
-                        case 1: //SOUTH
-                            maze[++curX1][curY1].setVisited(true);
-                            break;
-                        case 2: //EAST
-                            maze[curX1][++curY1].setVisited(true);
-                            break;
-                        case 3: //WEST
-                            maze[curX1][--curY1].setVisited(true);
-                            break;
-                    }
-                    cout << " after switch for" << std::endl;
-                    trail1.push_back(maze[curX1][curY1]);
-                    queue.push(maze[curX1][curY1]);
-                }
-                else if(live1.size() > 1){
-                    cout << " before switch for" << std::endl;
-                    switch(live1[i]){
-                        case 0: //NORTH
-                            maze[--curX1][curY1].setVisited(true);
-                            break;
-                        case 1: //SOUTH
-                            maze[++curX1][curY1].setVisited(true);
-                            break;
-                        case 2: //EAST
-                            maze[curX1][++curY1].setVisited(true);
-                            break;
-                        case 3: //WEST
-                            maze[curX1][--curY1].setVisited(true);
-                            break;
-                    }
-                    cout << " after switch for" << std::endl;
-                    trail1.push_back(maze[curX1][curY1]);
-                    queue.push(maze[curX1][curY1]);
-                    switch(live1[i]){
-                        case 0: //NORTH
-                            curX1++;
-                            break;
-                        case 1: //SOUTH
-                            curX1--;
-                            break;
-                        case 2: //EAST
-                            curY1--;
-                            break;
-                        case 3: //WEST
-                            curY1++;
-                            break;
-                    }
-                }
-                cout << " after first for" << std::endl;     
-            }
-            queue.pop();
-            cout << " after fors" << std::endl;
                 
-        //     }
-        //     else if(live1.empty() == true){
-        //             trail1.pop_back();
-        //             if(trail1.empty()==false) {
-        //             int n = trail1.size();
-        //             curX1=trail1[n-1].getRow();
-        //             curY1=trail1[n-1].getColumn();
-        //             }
-            
+                for (size_t i = 0; i < live1.size(); i++)
+                {
+                    if(live1.size() == 1){
+                        switch(live1[i]) {
+                            case 0: //NORTH
+                                maze[--curX1][curY1].setVisited(true);
+                                break;
+                            case 1: //SOUTH
+                                maze[++curX1][curY1].setVisited(true);
+                                break;
+                            case 2: //EAST
+                                maze[curX1][++curY1].setVisited(true);
+                                break;
+                            case 3: //WEST
+                                maze[curX1][--curY1].setVisited(true);
+                                break;
+                        }
+                        trail1.push_back(maze[curX1][curY1]);
+                        queue.push(maze[curX1][curY1]);
+                    }
+                    else if(live1.size() > 1){
+                        switch(live1[i]){
+                            case 0: //NORTH
+                                maze[--curX1][curY1].setVisited(true);
+                                trail1.push_back(maze[curX1][curY1]);
+                                queue.push(maze[curX1][curY1]);
+                                curX1++;
+                                break;
+                            case 1: //SOUTH
+                                maze[++curX1][curY1].setVisited(true);
+                                trail1.push_back(maze[curX1][curY1]);
+                                queue.push(maze[curX1][curY1]);
+                                curX1--;
+                                break;
+                            case 2: //EAST
+                                maze[curX1][++curY1].setVisited(true);
+                                trail1.push_back(maze[curX1][curY1]);
+                                queue.push(maze[curX1][curY1]);
+                                curY1--;
+                                break;
+                            case 3: //WEST
+                                maze[curX1][--curY1].setVisited(true);
+                                trail1.push_back(maze[curX1][curY1]);
+                                queue.push(maze[curX1][curY1]);
+                                curY1++;
+                                break;
+                        }
+                    }  
+                }
+                queue.pop();
+            }    
         }
         for (size_t i = 0; i < trail1.size(); i++)
         {
